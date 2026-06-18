@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Single-Cell Foundation Models — A Comparative Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F7F9;
+    --panel:#FFFFFF;
+    --ink:#16202C;
+    --ink-soft:#46566A;
+    --ink-faint:#8494A6;
+    --line:#DCE3EA;
+    --line-soft:#EAEFF3;
+
+    /* one accent per model, used as a key throughout */
+    --scf:#0E7C7B;   /* scFoundation — continuous / teal */
+    --gpt:#5658CC;   /* scGPT — bins / indigo */
+    --c2s:#BE7A1E;   /* Cell2Sentence — text / ochre */
+    --gf:#C03C66;    /* Geneformer — ranks / rose */
+
+    --scf-wash:#E4F1F0;
+    --gpt-wash:#E9E9FA;
+    --c2s-wash:#F6ECD8;
+    --gf-wash:#F9E4EB;
+
+    --display:'Space Grotesk',sans-serif;
+    --body:'Inter',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
+    --maxw:1080px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--body);line-height:1.6;
+    -webkit-font-smoothing:antialiased;font-size:16px;
+  }
+  a{color:inherit;}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;font-weight:500;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);
+  }
+
+  /* ---------- hero ---------- */
+  .hero{padding:84px 0 36px;border-bottom:1px solid var(--line);}
+  .hero h1{
+    font-family:var(--display);font-weight:700;
+    font-size:clamp(34px,6vw,62px);line-height:1.02;letter-spacing:-.02em;
+    margin:18px 0 0;
+  }
+  .hero h1 em{font-style:normal;color:var(--ink-soft);}
+  .hero .lede{
+    font-size:clamp(17px,2.3vw,20px);color:var(--ink-soft);
+    max-width:60ch;margin:22px 0 0;
+  }
+  .hero .lede b{color:var(--ink);font-weight:600;}
+
+  /* ---------- signature: one cell, four encodings ---------- */
+  .rosetta{margin:46px 0 4px;}
+  .rosetta-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+  .rosetta-head h2{font-family:var(--display);font-weight:600;font-size:20px;margin:0;letter-spacing:-.01em;}
+  .rosetta-head span{font-size:14px;color:var(--ink-faint);}
+  .strip{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+  }
+  .enc{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:16px 16px 18px;position:relative;overflow:hidden;
+  }
+  .enc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ac);}
+  .enc .model{font-family:var(--display);font-weight:600;font-size:15px;margin:2px 0 2px;color:var(--ac);}
+  .enc .kind{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);}
+  .enc .payload{
+    font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--ink);
+    margin-top:13px;word-break:break-word;
+  }
+  .enc .tok{display:inline-block;background:var(--wash);border-radius:5px;padding:1px 6px;margin:2px 3px 2px 0;white-space:nowrap;}
+  .enc .zero{color:var(--ink-faint);}
+  .enc .note{margin-top:12px;font-family:var(--body);font-size:11.5px;color:var(--ink-soft);line-height:1.45;}
+  .scf{--ac:var(--scf);--wash:var(--scf-wash);}
+  .gpt{--ac:var(--gpt);--wash:var(--gpt-wash);}
+  .c2s{--ac:var(--c2s);--wash:var(--c2s-wash);}
+  .gf{--ac:var(--gf);--wash:var(--gf-wash);}
+  .rosetta-foot{font-size:13px;color:var(--ink-faint);margin:16px 0 0;max-width:70ch;}
+
+  /* ---------- matrix ---------- */
+  .section{padding:64px 0;border-bottom:1px solid var(--line);}
+  .section > .eyebrow{display:block;margin-bottom:10px;}
+  .section h2.title{font-family:var(--display);font-weight:600;font-size:clamp(24px,3.4vw,32px);letter-spacing:-.015em;margin:0 0 24px;}
+
+  .matrix-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel);}
+  table.matrix{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px;}
+  table.matrix th,table.matrix td{text-align:left;padding:15px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+  table.matrix thead th{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-faint);font-weight:500;background:#FBFCFD;position:sticky;top:0;
+  }
+  table.matrix tbody tr:last-child td{border-bottom:none;}
+  .m-name{font-family:var(--display);font-weight:600;font-size:15px;white-space:nowrap;}
+  .m-name .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:middle;}
+  .m-sub{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-faint);font-weight:400;margin-top:3px;letter-spacing:.02em;}
+  td code{font-family:var(--mono);font-size:12px;background:var(--line-soft);padding:1px 5px;border-radius:4px;}
+
+  /* ---------- model deep cards ---------- */
+  .model-card{
+    background:var(--panel);border:1px solid var(--line);border-radius:18px;
+    padding:0;margin-bottom:26px;overflow:hidden;
+  }
+  .mc-head{padding:26px 30px 22px;border-bottom:1px solid var(--line-soft);position:relative;}
+  .mc-head::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--ac);}
+  .mc-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ac);font-weight:600;}
+  .mc-head h3{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:-.02em;margin:6px 0 6px;}
+  .mc-tag{font-size:15px;color:var(--ink-soft);max-width:64ch;margin:0;}
+  .mc-tag b{color:var(--ink);font-weight:600;}
+
+  .mc-body{padding:8px 30px 26px;}
+  .row{display:grid;grid-template-columns:148px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid var(--line-soft);}
+  .row:last-child{border-bottom:none;}
+  .row .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding-top:2px;}
+  .row .v{font-size:14.5px;color:var(--ink);}
+  .row .v p{margin:0 0 8px;}
+  .row .v p:last-child{margin-bottom:0;}
+  .row .v code,.gotcha code{font-family:var(--mono);font-size:12.5px;background:var(--line-soft);padding:1.5px 6px;border-radius:4px;word-break:break-word;}
+  .row .v ul{margin:2px 0 0;padding-left:18px;}
+  .row .v li{margin:3px 0;}
+
+  .gotcha{
+    margin-top:6px;background:var(--wash);border-radius:12px;padding:15px 17px;
+    font-size:13.5px;color:var(--ink);
+  }
+  .gotcha .glabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);font-weight:600;display:block;margin-bottom:6px;}
+  .gotcha ul{margin:0;padding-left:17px;}
+  .gotcha li{margin:5px 0;}
+
+  /* ---------- closing ---------- */
+  .takeaway{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+  .tk{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;}
+  .tk::before{content:"";display:block;width:26px;height:4px;border-radius:2px;background:var(--ac);margin-bottom:13px;}
+  .tk h4{font-family:var(--display);font-weight:600;font-size:17px;margin:0 0 6px;color:var(--ac);}
+  .tk p{margin:0;font-size:14px;color:var(--ink-soft);}
+  .tk p b{color:var(--ink);font-weight:600;}
+
+  footer{padding:40px 0 64px;color:var(--ink-faint);font-size:12.5px;}
+  footer a{font-family:var(--mono);color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--line);}
+  footer a:hover{color:var(--ink);}
+  footer .src{margin:4px 0;}
+
+  @media (max-width:720px){
+    .strip{grid-template-columns:1fr 1fr;}
+    .row{grid-template-columns:1fr;gap:6px;}
+    .row .k{padding-top:0;}
+    .takeaway{grid-template-columns:1fr;}
+    .mc-body,.mc-head{padding-left:22px;padding-right:22px;}
+  }
+  @media (max-width:440px){
+    .strip{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal.in{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">scRNA-seq · Foundation Models · Field Reference</span>
+    <h1>Four ways to feed<br>a cell to a transformer.</h1>
+    <p class="lede">scFoundation, scGPT, Cell2Sentence, and Geneformer all borrow the LLM playbook — pretrain on tens of millions of cells, then reuse. What separates them is a single design choice: <b>how a cell's gene expression is encoded as model input.</b> Everything downstream follows from that.</p>
+
+    <div class="rosetta">
+      <div class="rosetta-head">
+        <h2>One cell, four encodings</h2>
+        <span>the same expression profile, rendered each model's way</span>
+      </div>
+      <div class="strip">
+        <div class="enc scf">
+          <div class="kind">Continuous</div>
+          <div class="model">scFoundation</div>
+          <div class="payload">
+            <span class="tok">MALAT1 5.1</span><span class="tok">ACTB 2.7</span><span class="tok">B2M 1.3</span><span class="tok">TMSB4X 0.9</span><span class="tok zero">⋯ 0.0</span>
+            <span class="tok">S=4218</span><span class="tok">T=4218</span>
+          </div>
+          <p class="note">Raw values kept intact, plus read-depth tokens T (target) and S (source).</p>
+        </div>
+        <div class="enc gpt">
+          <div class="kind">Binned</div>
+          <div class="model">scGPT</div>
+          <div class="payload">
+            <span class="tok">&lt;cls&gt;</span><span class="tok">MALAT1 50</span><span class="tok">ACTB 42</span><span class="tok">B2M 28</span><span class="tok">TMSB4X 17</span><span class="tok">[batch]</span>
+          </div>
+          <p class="note">Values bucketed into ~50 bins; gene + condition tokens summed under a &lt;cls&gt; cell token.</p>
+        </div>
+        <div class="enc c2s">
+          <div class="kind">Text</div>
+          <div class="model">Cell2Sentence</div>
+          <div class="payload">
+            <span class="tok">"MALAT1 ACTB B2M TMSB4X MT-CO1 …"</span>
+          </div>
+          <p class="note">Genes ranked high→low and written as a plain sentence for an ordinary LLM.</p>
+        </div>
+        <div class="enc gf">
+          <div class="kind">Rank tokens</div>
+          <div class="model">Geneformer</div>
+          <div class="payload">
+            <span class="tok">[CLS]</span><span class="tok">g·MALAT1</span><span class="tok">g·ACTB</span><span class="tok">g·B2M</span><span class="tok">g·TMSB4X</span>
+          </div>
+          <p class="note">Corpus-normalized rank order as tokens — magnitudes discarded entirely.</p>
+        </div>
+      </div>
+      <p class="rosetta-foot">Read across: scFoundation trusts the numbers, scGPT discretizes them, Cell2Sentence verbalizes them, Geneformer keeps only their order. That one decision shapes the architecture, the objective, and what each model is good at.</p>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== AT A GLANCE ===================== -->
+<section class="section">
+  <div class="wrap">
+    <span class="eyebrow">At a glance</span>
+    <h2 class="title">The comparison matrix</h2>
+    <div class="matrix-scroll">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Encoding</th>
+            <th>Backbone</th>
+            <th>Pretraining objective</th>
+            <th>Scale</th>
+            <th>Home</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="m-name"><span class="dot" style="background:var(--scf)"></span>scFoundation<span class="m-sub">Nat. Methods 2024</span></span></td>
+            <td>Raw continuous values + RDA read-depth tokens (T / S)</td>
+            <td>xTrimoGene — asymmetric encoder–decoder (Performer decoder)</td>
+            <td>Read-depth-aware masked regression</td>
+            <td>100M params · 50M cells · 19,264 genes</td>
+            <td><code>biomap-research/scFoundation</code></td>
+          </tr>
+          <tr>
+            <td><span class="m-name"><span class="dot" style="background:var(--gpt)"></span>scGPT<span class="m-sub">Nat. Methods 2024</span></span></td>
+            <td>Binned values (~50) + gene + condition tokens + &lt;cls&gt;</td>
+            <td>12-layer transformer · binary generative attention mask</td>
+            <td>Generative masked (GEP + GEPC)</td>
+            <td>~50M params · 33M cells (whole-human)</td>
+            <td><code>bowang-lab/scGPT</code></td>
+          </tr>
+          <tr>
+            <td><span class="m-name"><span class="dot" style="background:var(--c2s)"></span>Cell2Sentence<span class="m-sub">C2S-Scale 2025</span></span></td>
+            <td>Rank-ordered gene names as natural-language text</td>
+            <td>Off-the-shelf LLM (Pythia / Gemma-2), decoder-only</td>
+            <td>Causal LM + instruction fine-tuning</td>
+            <td>up to 27B params · 57M cells</td>
+            <td><code>vandijklab/cell2sentence</code></td>
+          </tr>
+          <tr>
+            <td><span class="m-name"><span class="dot" style="background:var(--gf)"></span>Geneformer<span class="m-sub">Nature 2023</span></span></td>
+            <td>Corpus-normalized rank value encoding (tokens)</td>
+            <td>BERT-style transformer encoder</td>
+            <td>Masked gene prediction (15% masked)</td>
+            <td>V2: 104M / 316M params · 104M cells</td>
+            <td><code>ctheodoris/Geneformer</code> (HF)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DEEP DIVES ===================== -->
+<section class="section">
+  <div class="wrap">
+    <span class="eyebrow">Model by model</span>
+    <h2 class="title">The details that matter for deployment</h2>
+
+    <!-- scFoundation -->
+    <article class="model-card scf reveal" style="--ac:var(--scf);--wash:var(--scf-wash);">
+      <div class="mc-head">
+        <span class="mc-eyebrow">Continuous values · read-depth aware</span>
+        <h3>scFoundation</h3>
+        <p class="mc-tag">The "keep the real numbers" model. Its identity is <b>modeling sequencing depth explicitly</b> rather than hoping scale washes it out.</p>
+      </div>
+      <div class="mc-body">
+        <div class="row"><div class="k">Find &amp; install</div><div class="v"><p>GitHub <code>biomap-research/scFoundation</code>; weights on Zenodo (<code>models.ckpt</code>, the 50M-0.1B model) into <code>model/models/</code>. Needs PyTorch + CUDA, <code>einops</code>, <code>scanpy</code>, <code>local_attention</code>. GPU model.</p></div></div>
+        <div class="row"><div class="k">Design idea</div><div class="v"><p>Continuous expression scalars embedded directly (no binning), over the full ~20k-gene transcriptome. Asymmetric split: a heavy vanilla-transformer encoder sees only the ~10% expressed genes; a lighter Performer decoder spans all genes.</p></div></div>
+        <div class="row"><div class="k">Transformation</div><div class="v"><p>Align to the 19,264-gene index → append T (target) and S (source) total-count tokens → encoder pools to a cell embedding; decoder yields gene context embeddings. Setting <code>T &gt; S</code> performs read-depth enhancement.</p></div></div>
+        <div class="row"><div class="k">Pipeline</div><div class="v"><p>Run <code>get_embedding.py</code> once to extract embeddings, then feed them to a frozen downstream head — DeepCDR (drug response), SCAD (single-cell sensitivity), GEARS (perturbation). Most tasks need <b>no fine-tuning</b>.</p></div></div>
+        <div class="gotcha"><span class="glabel">Watch out</span><ul>
+          <li>The old online API was discontinued 30 Apr 2024 — use local weights or migrate to <code>aigp.biomap.com</code>.</li>
+          <li>Use the <b>embeddings, not the reconstructed expression values</b> (pretraining loss wasn't driven to zero; high dropout).</li>
+          <li>Read-depth only is harmonized internally; leave batch/modality to downstream methods (BBKNN, SCAD).</li>
+        </ul></div>
+      </div>
+    </article>
+
+    <!-- scGPT -->
+    <article class="model-card gpt reveal" style="--ac:var(--gpt);--wash:var(--gpt-wash);">
+      <div class="mc-head">
+        <span class="mc-eyebrow">Binned values · generative attention</span>
+        <h3>scGPT</h3>
+        <p class="mc-tag">The most literally GPT-like, and the most "fine-tune it." Its trick is a <b>generative attention mask</b> that lets a transformer generate over unordered gene sets.</p>
+      </div>
+      <div class="mc-body">
+        <div class="row"><div class="k">Find &amp; install</div><div class="v"><p>GitHub <code>bowang-lab/scGPT</code> or <code>pip install scgpt</code> (poetry is out of sync — use pip). Python ≥3.7. flash-attn is now optional; weights load on CPU, GPU, or flash-attn via the same <code>load_pretrained</code>.</p></div></div>
+        <div class="row"><div class="k">Checkpoints</div><div class="v"><p><b>whole-human</b> (33M cells) is the default. Also continual-pretrained (zero-shot embeddings), pan-cancer (5.7M), and organ models: brain, blood, heart, lung, kidney. Each folder ships <code>args.json</code>, <code>vocab.json</code>, <code>best_model.pt</code>.</p></div></div>
+        <div class="row"><div class="k">Transformation</div><div class="v"><p>Normalize → log → HVG → bin into ~50 equidistant bins. Binned value + gene token are embedded and summed; condition tokens (batch / modality / perturbation) and a &lt;cls&gt; token complete the input. Nonzero genes only during pretraining.</p></div></div>
+        <div class="row"><div class="k">Pipeline</div><div class="v"><p>Preprocess → tokenize vs <code>vocab.json</code> → load weights → choose zero-shot (pull &lt;cls&gt; embeddings) or fine-tune. Tasks: annotation, batch &amp; multi-omic integration, perturbation, GRN inference, cell generation.</p></div></div>
+        <div class="gotcha"><span class="glabel">Watch out</span><ul>
+          <li>Use <code>pip install</code>, not poetry.</li>
+          <li>If you want flash-attn speed, historically pin <b>CUDA 11.7 / flash-attn &lt; 1.0.5</b> — version mismatches are the usual install failure.</li>
+          <li>Default to whole-human unless your data clearly shares context with an organ model.</li>
+        </ul></div>
+      </div>
+    </article>
+
+    <!-- Cell2Sentence -->
+    <article class="model-card c2s reveal" style="--ac:var(--c2s);--wash:var(--c2s-wash);">
+      <div class="mc-head">
+        <span class="mc-eyebrow">Text · ordinary LLM</span>
+        <h3>Cell2Sentence</h3>
+        <p class="mc-tag">The clever shortcut: turn a cell into a <b>sentence of gene names</b> and use a normal LLM. The only model where "talk to your cells" and "generate a cell from a description" are native.</p>
+      </div>
+      <div class="mc-body">
+        <div class="row"><div class="k">Find &amp; install</div><div class="v"><p>GitHub <code>vandijklab/cell2sentence</code> (older cards point to <code>-ft</code>) or <code>pip install cell2sentence</code>. Docs on readthedocs. Models on Hugging Face under <code>vandijklab</code>.</p></div></div>
+        <div class="row"><div class="k">Checkpoints</div><div class="v"><ul>
+          <li><code>pythia-160m-c2s</code> — small, one-GPU starter (immune tissue).</li>
+          <li><code>C2S-Scale-Pythia-1b-pt</code> — 1B, 57M cells.</li>
+          <li><code>C2S-Scale-Gemma-2-2B</code> / <code>-27B</code> — current flagships.</li>
+        </ul></div></div>
+        <div class="row"><div class="k">Transformation</div><div class="v"><p>Rank genes high→low, write the names as space-separated text = a "cell sentence." Tasks run as prompts (<code>"Cell sentence: … The cell type is:"</code>). Reverse mapping (rank→expression) is reconstructed via a log-rank/log-expression fit — approximate.</p></div></div>
+        <div class="row"><div class="k">Pipeline</div><div class="v"><p>Preprocess → wrap in <code>CSData</code> → load <code>CSModel</code> → prompt for prediction, generation, embeddings, or (C2S-Scale) perturbation, captioning, QA. Custom &amp; multi-cell prompt templates supported (tutorials 7–8).</p></div></div>
+        <div class="gotcha"><span class="glabel">Watch out</span><ul>
+          <li>Licensing is mixed: code Apache-2.0, HF weights CC-BY-4.0 — but some C2S-Scale mirrors are non-commercial. Check the specific card.</li>
+          <li>Exact magnitudes are lost; sentence length forces a top-k gene cutoff.</li>
+        </ul></div>
+      </div>
+    </article>
+
+    <!-- Geneformer -->
+    <article class="model-card gf reveal" style="--ac:var(--gf);--wash:var(--gf-wash);">
+      <div class="mc-head">
+        <span class="mc-eyebrow">Rank value encoding · in silico perturbation</span>
+        <h3>Geneformer</h3>
+        <p class="mc-tag">The "ranks only" BERT. Built for <b>small-data fine-tuning</b> and <b>in silico perturbation</b> — asking what happens to cell state when a gene is pushed up or deleted.</p>
+      </div>
+      <div class="mc-body">
+        <div class="row"><div class="k">Find &amp; install</div><div class="v"><p>Lives on <b>Hugging Face</b>, not GitHub: <code>ctheodoris/Geneformer</code>. Needs git-lfs: <code>git lfs install && git clone … && pip install .</code> Docs on readthedocs.</p></div></div>
+        <div class="row"><div class="k">Checkpoints</div><div class="v"><p><b>V1</b> (2021, ~30M cells, incl. 10M model). <b>V2</b> (Dec 2024, default): 104M &amp; 316M params, 104M cells, context 4096. Plus <code>V2-104M_CLcancer</code> (continual-tuned on ~14M cancer cells).</p></div></div>
+        <div class="row"><div class="k">Transformation</div><div class="v"><p>Rank genes by expression <em>normalized across the whole corpus</em> — so ubiquitous genes sink and cell-state-defining genes rise. Encode as tokens (with [CLS] in V2). Magnitudes discarded; representation is nonparametric.</p></div></div>
+        <div class="row"><div class="k">Pipeline</div><div class="v"><p>ENSEMBL-ID your AnnData → <code>TranscriptomeTokenizer</code> → then <code>EmbExtractor</code> (zero-shot embeddings), a fine-tuned classifier head, or <code>InSilicoPerturber</code> (delete = drop from ranks; overexpress = move to front).</p></div></div>
+        <div class="gotcha"><span class="glabel">Watch out</span><ul>
+          <li>V1 vs V2 configs differ: <b>V1</b> → <code>special_token=False</code>, <code>input_size=2048</code>; <b>V2</b> → <code>special_token=True</code>, <code>input_size=4096</code>. Use the matching token dictionary / gene-median file.</li>
+          <li>Requires ENSEMBL gene IDs (no version suffix) in <code>obs["ensembl_id"]</code>.</li>
+          <li>CELLxGENE Census ships precomputed embeddings — often faster than running inference.</li>
+        </ul></div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ===================== TAKEAWAYS ===================== -->
+<section class="section">
+  <div class="wrap">
+    <span class="eyebrow">How to choose</span>
+    <h2 class="title">One line each, when you're deciding</h2>
+    <div class="takeaway">
+      <div class="tk" style="--ac:var(--scf)"><h4>Reach for scFoundation</h4><p>when <b>read depth varies</b> across your data, you want shallow profiles enhanced, or you need strong frozen embeddings with no fine-tuning.</p></div>
+      <div class="tk" style="--ac:var(--gpt)"><h4>Reach for scGPT</h4><p>when you want a <b>flexible all-rounder</b> to fine-tune across annotation, integration, perturbation, and GRN tasks from one base.</p></div>
+      <div class="tk" style="--ac:var(--c2s)"><h4>Reach for Cell2Sentence</h4><p>when you want <b>natural-language outputs</b> — QA, captioning, cell generation from text — or to unify transcriptomics with literature.</p></div>
+      <div class="tk" style="--ac:var(--gf)"><h4>Reach for Geneformer</h4><p>when you have <b>limited labeled data</b> or your central question is <b>in silico perturbation</b> of cell state and network regulators.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="src">scFoundation — Hao et al., <em>Nature Methods</em> 2024 · <a href="https://github.com/biomap-research/scFoundation">github.com/biomap-research/scFoundation</a></div>
+    <div class="src">scGPT — Cui et al., <em>Nature Methods</em> 2024 · <a href="https://github.com/bowang-lab/scGPT">github.com/bowang-lab/scGPT</a></div>
+    <div class="src">Cell2Sentence / C2S-Scale — Levine et al. 2023; Rizvi et al. 2025 · <a href="https://github.com/vandijklab/cell2sentence">github.com/vandijklab/cell2sentence</a></div>
+    <div class="src">Geneformer — Theodoris et al., <em>Nature</em> 2023 · <a href="https://huggingface.co/ctheodoris/Geneformer">huggingface.co/ctheodoris/Geneformer</a></div>
+    <div class="src" style="margin-top:14px;color:var(--ink-faint)">Comparative reference · encodings shown are illustrative. Verify versions and licenses against current repositories before deployment.</div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var els=document.querySelectorAll('.reveal');
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    },{threshold:.12});
+    els.forEach(function(el){io.observe(el);});
+  })();
+</script>
+</body>
+</html>
